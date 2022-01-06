@@ -1,0 +1,77 @@
+version: '3'
+services:
+  php-fpm:
+    build:
+      context: docker/php-fpm
+    container_name: yeticave_php
+    links:
+      - mysql
+    volumes:
+      - ./:/var/www
+    environment:
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_enable=1"
+      PHP_IDE_CONFIG: "serverName=Docker"
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    networks:
+      - default
+
+  nginx:
+    build:
+      context: docker/nginx
+    container_name: yeticave_nginx
+    links:
+      - php-fpm
+    volumes:
+      - ./:/var/www
+    expose:
+      - 80
+    environment:
+      VIRTUAL_HOST: ianbel.local
+    depends_on:
+      - php-fpm
+      - mysql
+    networks:
+      - default
+
+  mysql:
+    image: mysql:5.7.32
+    container_name: yeticave_mysql
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    external:
+      name: nginx_proxy
+
+#  phpmyadmin:
+#    image: phpmyadmin:5.0.4-apache
+#    links:
+#      - mysql
+#    ports:
+#      - "8090:80"
+#    environment:
+#      - PMA_HOST=mysql
+#      - PMA_PORT=3306
+#      - PMA_ARBITRARY=1
+#      - MYSQL_ROOT_PASSWORD="secret"
+#    restart: always
+#    networks:
+#      - internal
+
+#networks:
+#  internal:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 192.168.220.0/28
