@@ -27,8 +27,7 @@ services:
       - ./:/var/www
     expose:
       - 80
-    environment:
-      VIRTUAL_HOST: ianbel.local
+    restart: unless-stopped
     depends_on:
       - php-fpm
       - mysql
@@ -52,26 +51,3 @@ networks:
   default:
     external:
       name: nginx_proxy
-
-#  phpmyadmin:
-#    image: phpmyadmin:5.0.4-apache
-#    links:
-#      - mysql
-#    ports:
-#      - "8090:80"
-#    environment:
-#      - PMA_HOST=mysql
-#      - PMA_PORT=3306
-#      - PMA_ARBITRARY=1
-#      - MYSQL_ROOT_PASSWORD="secret"
-#    restart: always
-#    networks:
-#      - internal
-
-#networks:
-#  internal:
-#    driver: bridge
-#    ipam:
-#      driver: default
-#      config:
-#        - subnet: 192.168.220.0/28
